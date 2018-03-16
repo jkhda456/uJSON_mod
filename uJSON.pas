@@ -899,7 +899,11 @@ begin
 
             If Pos('.', s) <= 0 Then // . 들어간건 Double 로 바로 가도록 한다. by jkh
             try
-                result := _Integer.create(s);
+                // java 의 big int 타입은 배열 형태로 무식하게 길게 들어올거다.
+                If Length(s) < 23 Then
+                   result := _Integer.create(s)
+                Else
+                   result := CNULL; // 말도 안되게 크다. 이건 일단 예외처리 이전에 이렇게 필터링 한다.
                 exit;
             Except
                     on e:Exception do begin
