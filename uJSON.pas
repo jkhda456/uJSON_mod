@@ -195,13 +195,16 @@ Type
     function getBoolean (key : string): boolean;
     function getBooleanSlient (key : string; default: boolean = false): boolean;
     function getDouble (key : string): double;
+    function getDoubleSlient (key : string; default: double = 0.0): double; // add by jkh
     function getInt (key : string): int64;
+    function getIntSlient (key : string; default: int64 = 0): int64; // add by jkh
     function getJSONArray (key : string) :TJSONArray;
+    function getJSONArraySlient (key : string; useCNULL: boolean = true) :TJSONArray; // add by jkh : err = CNULL
     function getJSONObject (key : string) : TJSONObject;
+    function getJSONObjectSlient (key : string; useCNULL: boolean = true) : TJSONObject; // add by jkh : err = CNULL
     function getString (key : string): string;
-	// add by jkh
-    function getStringSlient (key : string): string;
-    function getJSONValueString(key: string): string;
+    function getStringSlient (key : string): string; // add by jkh
+    function getJSONValueString(key: string): string; // add by jkh
 
     // add by jkh
     function getIndexByKey (key: String): Integer;
@@ -2263,12 +2266,75 @@ begin
           ((temp is _String) and
           (_String(temp)).equalsIgnoreCase('false'))) then begin
       result := false;
-      exit;
   end else if (temp.equals(_Boolean._TRUE) or
           ((temp is _String) and
           (_String(temp)).equalsIgnoreCase('true'))) then begin
       result := true;
-      exit;
+  end;
+end;
+
+function TJSONObject.getJSONObjectSlient(key : string; useCNULL: boolean): TJSONObject;
+var
+  o : TZAbstractObject;
+begin
+  result := nil;
+  if useCNULL Then
+     result := TJSONObject(CNULL);
+
+  o := opt(key);
+  if o = nil then exit;
+
+  if (o is TJSONObject) then
+      result := TJSONObject(o);
+end;
+
+function TJSONObject.getDoubleSlient(key: string; default: double): double;
+var
+  o : TZAbstractObject;
+begin
+  result := default;
+  o := getSlient(key);
+  if o = nil then exit;
+
+  if (o is _Number) then begin
+      result := _Number (o).doubleValue();
+  end ;
+  if (o is _String) then begin
+      // result := StrToFloat (_String(o).toString(), getFormatSettings());
+      TryStrToFloat(_String(o).toString(), result);
+  end;
+end;
+
+function TJSONObject.getIntSlient(key: string; default: int64): int64;
+var
+  o : TZAbstractObject;
+begin
+  result := default;
+  o := getSlient(key);
+  if o = nil then exit;
+
+  if (o is _Double) then begin
+     result := Round(getDouble(key));
+  end else if (o is _Number) then begin
+     result := _Number(o).intValue();
+  end else begin
+     TryStrToInt64(o.toString, result);
+  end;
+end;
+
+function TJSONObject.getJSONArraySlient(key: string; useCNULL: boolean): TJSONArray;
+var
+  o : TZAbstractObject;
+begin
+  result := nil;
+  if useCNULL Then
+     result := TJSONArray(CNULL);
+     
+  o := opt(key);
+  if o = nil then Exit;
+
+  if (o is TJSONArray) then begin
+      result := TJSONArray(o);
   end;
 end;
 
