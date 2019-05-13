@@ -54,7 +54,10 @@ unit uJSON;
 
 interface
 uses
-  Windows,SysUtils, Classes,  TypInfo;
+  {$IFDEF MSWINDOWS}
+  Windows,
+  {$ENDIF}
+  SysUtils, Classes,  TypInfo;
 
 Type
     { @abstract(Classe pai de todas as classes em uJSON , resolve o problema de
@@ -482,7 +485,7 @@ var
   f : TFormatSettings;
 begin
  {$IFDEF MSWINDOWS}
-  SysUtils.GetLocaleFormatSettings (Windows.GetThreadLocale,f);
+    SysUtils.GetLocaleFormatSettings (Windows.GetThreadLocale,f);
  {$ELSE}
     newNotImplmentedFeature();
  {$ENDIF}
