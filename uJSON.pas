@@ -383,7 +383,7 @@ Type
     function put ( index : integer ; value : double) : TJSONArray;  overload ;
     function put ( index : integer ; value : integer) : TJSONArray;  overload ;
     function putint64( index : integer ; value : int64) : TJSONArray;  overload ;
-    function put ( index : integer ; value : TZAbstractObject) : TJSONArray;  overload ;
+    function put ( index : integer ; value : TZAbstractObject; isInsert: Boolean = False) : TJSONArray;  overload ;
     function put ( index: integer; value: string): TJSONArray; overload;
     function toJSONObject (names  :TJSONArray ) : TJSONObject ;  overload ;
     function toString : string; overload; override;
@@ -3289,16 +3289,21 @@ end;
      * @raises (NoSuchElementException The index must not be negative.)
      * @raises (NullPointerException   The index must not be null.)
      *)
-function TJSONArray.put(index: integer; value: TZAbstractObject): TJSONArray;
+function TJSONArray.put(index: integer; value: TZAbstractObject; isInsert: Boolean ): TJSONArray;
 begin
     if (index < 0) then begin
         raise NoSuchElementException.create('TJSONArray['
           + intToStr(index) + '] not found.');
     end else if (value = nil) then begin
         raise NullPointerException.create('');
-    end else if (index < length()) then begin
-        myArrayList[index] := value;
-    end else begin
+    end else if (index < length()) then
+    begin
+        if isInsert Then
+           myArrayList.Insert(index, value)
+        Else
+           myArrayList[index] := value;
+    end
+    else begin
         while (index <> length()) do begin
             put(nil);
         end;
